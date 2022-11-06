@@ -1,0 +1,23 @@
+# Data
+# regex to match ply of any case
+ply_regex = re.compile(r'(?i)ply')
+*.[Pp][Ll][Yl]
+*.[Ss][Tt][Ee][Pp]
+*.stl
+*.pcd
+
+# Folders
+grasp_ds/
+object_ds/
+pointnet.pytorch/
+Pointnet_Pointnet2_pytorch/
+Point-Transformers/
+
+# Cache
+__pycache__/
+
+# Local
+*.vscode/
+
+# Logs
+*log/

@@ -54,18 +54,18 @@ def main(cfg):
         ## Get gripper model
         # Gripper model obtained from:
         # https://assets.robotiq.com/website-assets/support_documents/document/2F85_Opened_20190924.STEP
-        gripper_model = o3d.io.read_triangle_mesh(cfg['dirs']['file_dir']+cfg['gripper_pth'])
+        gripper_model = o3d.io.read_triangle_mesh(cfg['dirs']['file_dir']+cfg['gripper']['path'])
         gripper_model.compute_vertex_normals()
         gripper_bbox = gripper_model.get_axis_aligned_bounding_box()
         gripper_z = gripper_bbox.max_bound[2] - gripper_bbox.min_bound[2]
-        gripper_model.scale(0.075/gripper_z, center=gripper_model.get_center())
+        gripper_model.scale(cfg['gripper']['diam']/gripper_z, center=gripper_model.get_center())
         gripper_model.translate(-gripper_model.get_center())
         
         gripper_bbox = gripper_model.get_axis_aligned_bounding_box()
         gripper_box_trans = gripper_bbox.get_center()
         gripper_model.translate(-gripper_box_trans)
         gripper_bbox = gripper_model.get_axis_aligned_bounding_box()
-        gripper_model.translate(np.array([0,-gripper_bbox.min_bound[1]-0.128,0]))
+        gripper_model.translate(np.array([0,-gripper_bbox.min_bound[1]-cfg['gripper']['grasp_offset'],0]))
 
         r1 = R.from_euler('zx', (-90,90), degrees=True)
         gripper_model.rotate(r1.as_matrix(), center = [0,0,0])
@@ -86,11 +86,11 @@ def main(cfg):
             cloud_center = pcl_obj.get_center()
             pcl_obj.translate(-cloud_center)
             gripper_model.translate(-cloud_center)
-            custom_o3d_vis([pcl_obj,gripper_model],"Center_object_view.json")
+            custom_o3d_vis([pcl_obj,gripper_model], cfg['vis_views']['center'])
         else:
             pcl_obj.translate(-grasp_pos)
             gripper_model.translate(-grasp_pos)
-            custom_o3d_vis([pcl_obj,gripper_model],"Center_object_view.json")
+            custom_o3d_vis([pcl_obj,gripper_model], cfg['vis_views']['center'])
         
 
 if __name__ == '__main__':

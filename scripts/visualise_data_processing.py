@@ -25,8 +25,8 @@ def process_grasp_ds(cfg):
         ## Point cloud processing
 
         # Initial crop to workspace
-        min_bound = np.array([-0.7, -0.25, -.05])
-        max_bound = np.array([-0.3, 0.25, .3])
+        min_bound = np.array(cfg['workspace']['min'])
+        max_bound = np.array(cfg['workspace']['max'])
         bbox = o3d.geometry.AxisAlignedBoundingBox(min_bound, max_bound)
         bbox.color = [1.0, 0, 0]
         cropped_pcl = pcl_obj.crop(bbox)

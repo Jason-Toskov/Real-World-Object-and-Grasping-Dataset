@@ -68,5 +68,16 @@
             "20": 1
         }
     },
-    "gripper_pth": "2F85_Opened_20190924.PLY"
+    "gripper":{
+        "path":"2F85_Opened_20190924.PLY",
+        "diam": 0.075,
+        "grasp_offset": 0.128
+    },
+    "vis_views":{
+        "center": "Center_object_view.json"
+    },
+    "workspace":{
+        "min": [-0.7, -0.25, -1],
+        "max": [-0.3, 0.25, 1]
+    }
 }

@@ -4,7 +4,7 @@ import cv2
 import open3d as o3d
 
 # DATA_FOLDERS = ['json_files/','rgb_images/','depth_images/', 'point_clouds/']
-def make_grasp_data_generator(config, all_data = False, use_processed = None):
+def make_grasp_data_generator(cfg, all_data = False, use_processed = None):
     """
     Generator that yields a datapoint, json_dict, rgb_img, depth_img, pcl_obj.
     Can choose to unprocessed or processed data.
@@ -12,7 +12,7 @@ def make_grasp_data_generator(config, all_data = False, use_processed = None):
 
     Parameters
     ----------
-    config : dict
+    cfg : dict
         Dictionary containing the config file.
     all_data : bool, optional
         Whether to load all data or just an individual datapoint, by default False
@@ -25,8 +25,8 @@ def make_grasp_data_generator(config, all_data = False, use_processed = None):
         Tuple containing a datapoint, json_dict, rgb_img, depth_img, pcl_obj.
     """
 
-    directory = config['dirs']['file_dir'] + config['dirs']['grasp_data_dir']
-    data_folders = config['grasp_ds_data']['data_type_locs']
+    directory = cfg['dirs']['file_dir'] + cfg['dirs']['grasp_data_dir']
+    data_folders = cfg['grasp_ds_data']['data_type_locs']
     if use_processed is None:
         while True:
             use_processed = input('Use processed data? (y/n): ')
@@ -39,7 +39,7 @@ def make_grasp_data_generator(config, all_data = False, use_processed = None):
             else:
                 print('Please enter y or n')
     if use_processed:
-        data_folders['pcl'] = config['grasp_ds_data']['processed_pcl_loc']
+        data_folders['pcl'] = cfg['grasp_ds_data']['processed_pcl_loc']
 
     # get user input, to choose whether to load one datapoint or loop over all datapoints
     while True:
@@ -82,9 +82,9 @@ def make_grasp_data_generator(config, all_data = False, use_processed = None):
             # load files
             with open(data_dir['json'], 'r') as json_file:
                 json_dict = json.load(json_file)
-            rgb_img = cv2.imread(data_dir['rgb']+config['grasp_ds_data']['data_type_exts']['rgb'])
-            depth_img = cv2.imread(data_dir['depth'] + config['grasp_ds_data']['data_type_exts']['depth'])
-            pcl_obj = o3d.io.read_point_cloud(data_dir['pcl'] + config['grasp_ds_data']['data_type_exts']['pcl'])
+            rgb_img = cv2.imread(data_dir['rgb']+cfg['grasp_ds_data']['data_type_exts']['rgb'])
+            depth_img = cv2.imread(data_dir['depth'] + cfg['grasp_ds_data']['data_type_exts']['depth'])
+            pcl_obj = o3d.io.read_point_cloud(data_dir['pcl'] + cfg['grasp_ds_data']['data_type_exts']['pcl'])
             yield datapoint, json_dict, rgb_img, depth_img, pcl_obj
 
 

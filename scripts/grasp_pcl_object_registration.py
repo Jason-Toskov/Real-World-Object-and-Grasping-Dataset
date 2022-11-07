@@ -47,7 +47,7 @@ def main(cfg):
         o3d.visualization.draw_geometries([pcl_obj, obj_mesh_pcd])
 
         ## Match to pcl:
-        # TODO: cite this code (was from o3d docs)
+        # http://www.open3d.org/docs/release/tutorial/pipelines/colored_pointcloud_registration.html
         # colored pointcloud registration
         # This is implementation of following paper
         # J. Park, Q.-Y. Zhou, V. Koltun,
@@ -81,12 +81,9 @@ def main(cfg):
             current_transformation = result_icp.transformation
             print(result_icp)
             print(result_icp.transformation)
-        draw_registration_result_original_color(pcl_obj, obj_mesh, result_icp.transformation)
-
-def draw_registration_result_original_color(source, target, transformation):
-    source_temp = copy.deepcopy(source)
-    source_temp.transform(transformation)
-    o3d.visualization.draw_geometries([source_temp, target])
+        tmp_cloud = copy.deepcopy(pcl_obj)
+        tmp_cloud.transform(result_icp.transformation)
+        o3d.visualization.draw_geometries([tmp_cloud, obj_mesh])
 
 
 if __name__ == '__main__':

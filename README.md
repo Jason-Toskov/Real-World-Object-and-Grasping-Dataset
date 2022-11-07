@@ -51,10 +51,14 @@ python scripts/process_clouds.py
 
 ### Methods
 
-* To load some sample data, run `python scripts/data_loading_tools.py`
-* To visualise the point cloud through the data processing process, run `python scripts/visualise_data_processing.py`
-* To visualise the grasp pose, run `python scripts/display_grasp_pose.py`
-* To preform registration between a point cloud and it's corresponding object mesh, run `python scripts/grasp_pcl_object_registration.py`
+* To load some sample data, run 
+    * `python scripts/data_loading_tools.py`
+* To visualise the point cloud through the data processing process, run 
+    * `python scripts/visualise_data_processing.py`
+* To visualise the grasp pose, run 
+    * `python scripts/display_grasp_pose.py`
+* To preform registration between a point cloud and it's corresponding object mesh, run 
+    * `python scripts/grasp_pcl_object_registration.py`
 
 ### Model training 
 WIP

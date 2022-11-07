@@ -13,7 +13,7 @@ from scipy.spatial.transform import Rotation as R
 
 from rospy_message_converter.message_converter import convert_dictionary_to_ros_message as dict2rosmsg
 
-from utils import unpack_pose
+from scripts.utils import unpack_pose
 
 ### PRESS [ESC] IN FIGURES TO VISUALIZE NEXT GRASP 
 

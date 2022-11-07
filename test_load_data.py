@@ -10,7 +10,7 @@ from tqdm import tqdm
 from pyquaternion import Quaternion
 from scipy.spatial.transform import Rotation as R
 
-from utils import unpack_pose
+from scripts.utils import unpack_pose
 
 FILE_DIR = './'
 DATA_DIR = 'grasp_ds/'

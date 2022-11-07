@@ -1,0 +1,71 @@
+{
+    "dirs":{
+        "file_dir": "./",
+        "grasp_data_dir": "grasp_ds/",
+        "object_data_dir": "object_ds/"
+    },
+    "grasp_ds_data":{
+        "num_objects": 20,
+        "num_data_points": 1500,
+        "data_type_locs": {
+            "json": "json_files/",
+            "rgb": "rgb_images/",
+            "depth": "depth_images/", 
+            "pcl": "point_clouds/"
+        },
+        "data_type_exts": {
+            "json": ".json",
+            "rgb": ".png",
+            "depth": ".png",
+            "pcl": ".pcd"
+        },
+        "processed_pcl_loc": "point_clouds_cropped_with_normals/"
+    },
+    "object_ds_data":{
+        "obj_ext": ".ply",
+        "obj_grasp_id_map": {
+            "1": "Fish_Flakes",
+            "2": "Sunscreen_Roll_On",
+            "3": "Bathroom_Cleaner",
+            "4": "Bubbles",
+            "5": "Burger_Sauce",
+            "6": "Nail_Polish_Remover",
+            "7": "Diced_Tomatoes_Can",
+            "8": "Hazelnut_Spread",
+            "9": "Intimate_Wash",
+            "10": "Dishwashing_Liquid",
+            "11": "Glow_Sticks",
+            "12": "Dishwasher_Powder",
+            "13": "Chest_Rub_Ointment",
+            "14": "Gel_Nail_Polish_Remover",
+            "15": "Toilet_Cleaner",
+            "16": "Soap_Box",
+            "17": "BBQ_Sauce",
+            "18": "Water_Crackers",
+            "19": "Salt",
+            "20": "Sunscreen_Tube"
+        },
+        "obj_heights": {
+            "1": 0.115,
+            "2": 0.107,
+            "3": 0.257,
+            "4": 0.101,
+            "5": 0.156,
+            "6": 0.145,
+            "7": 0.108,
+            "8": 0.102,
+            "9": 0.177,
+            "10": 0.208,
+            "11": 1,
+            "12": 0.218,
+            "13": 0.069,
+            "14": 0.125,
+            "15": 0.244,
+            "16": 0.183,
+            "17": 1,
+            "18": 1,
+            "19": 0.204,
+            "20": 1
+        }
+    }
+}

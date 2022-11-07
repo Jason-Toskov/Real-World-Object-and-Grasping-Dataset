@@ -19,7 +19,7 @@
             "depth": ".png",
             "pcl": ".pcd"
         },
-        "processed_pcl_loc": "point_clouds_cropped_with_normals/"
+        "processed_pcl_loc": "point_clouds_processed/"
     },
     "object_ds_data":{
         "obj_ext": ".ply",

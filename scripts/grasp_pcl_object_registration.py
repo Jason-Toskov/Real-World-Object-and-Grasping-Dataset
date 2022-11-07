@@ -3,7 +3,7 @@ import open3d as o3d
 import numpy as np
 import copy
 
-from .data_loading_tools import make_grasp_data_generator
+from data_loading_tools import make_grasp_data_generator
 
 def main(cfg):
     """

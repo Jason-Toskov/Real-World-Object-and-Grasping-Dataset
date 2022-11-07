@@ -5,6 +5,7 @@ ply_regex = re.compile(r'(?i)ply')
 *.[Ss][Tt][Ee][Pp]
 *.stl
 *.pcd
+!2F85_Opened_20190924.PLY
 
 # Folders
 grasp_ds/

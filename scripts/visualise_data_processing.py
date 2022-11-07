@@ -3,8 +3,8 @@ import json
 import numpy as np
 import open3d as o3d
 
-from .data_loading_tools import make_grasp_data_generator
-from .utils import custom_o3d_vis
+from data_loading_tools import make_grasp_data_generator
+from utils import custom_o3d_vis
 
 def process_grasp_ds(cfg):
     """

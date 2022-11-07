@@ -1,11 +1,13 @@
 import json
+import requests
+
 import open3d as o3d
 import numpy as np
 from pyquaternion import Quaternion
 from scipy.spatial.transform import Rotation as R
 
-from .data_loading_tools import make_grasp_data_generator
-from .utils import unpack_pose, custom_o3d_vis
+from data_loading_tools import make_grasp_data_generator
+from utils import unpack_pose, custom_o3d_vis
 
 def main(cfg):
     """
@@ -50,7 +52,9 @@ def main(cfg):
         T_grasp[0:3,-1] = grasp_pos
 
         ## Get gripper model
-        gripper_model = o3d.io.read_triangle_mesh('./2F85_Opened_20190924.PLY')
+        # Gripper model obtained from:
+        # https://assets.robotiq.com/website-assets/support_documents/document/2F85_Opened_20190924.STEP
+        gripper_model = o3d.io.read_triangle_mesh(cfg['dirs']['file_dir']+cfg['gripper_pth'])
         gripper_model.compute_vertex_normals()
         gripper_bbox = gripper_model.get_axis_aligned_bounding_box()
         gripper_z = gripper_bbox.max_bound[2] - gripper_bbox.min_bound[2]

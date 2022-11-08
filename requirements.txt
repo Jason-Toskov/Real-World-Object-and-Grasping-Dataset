@@ -1,0 +1,24 @@
+--find-links https://download.pytorch.org/whl/torch_stable.html
+
+backports.statistics==0.1.0
+Cython==0.29.32
+dl==0.1.0
+hydra-core==1.2.0
+ipaddr==2.2.0
+keyring==18.0.1
+matplotlib==3.1.2
+mypy_extensions==0.4.3
+nibabel==4.0.2
+numpy==1.18.0
+omegaconf==2.2.3
+open3d==0.15.2
+opencv_python==4.5.5.62
+ordereddict==1.1
+Pillow==9.3.0
+pyquaternion==0.9.9
+requests==2.22.0
+rospy_message_converter==0.5.2
+scipy==1.3.3
+tf==1.13.2
+torch==1.11.0+cu113
+tqdm==4.64.0

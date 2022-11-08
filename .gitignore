@@ -13,6 +13,7 @@ object_ds/
 pointnet.pytorch/
 Pointnet_Pointnet2_pytorch/
 Point-Transformers/
+unused/
 
 # Cache
 __pycache__/

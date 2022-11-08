@@ -6,7 +6,7 @@ Code for `PAPER`
 
 ### Setup
 
-Requirements can be installed from `requirements.txt`. This can be dine by running the following commands:
+Requirements can be installed from `requirements.txt`. This can be done by running the following commands:
 ```
 python3 -m pip install --upgrade pip
 pip3 install -r requirements.txt

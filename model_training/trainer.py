@@ -90,7 +90,7 @@ def run_training(args, cfg):
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=args.gamma)
     loss = torch.nn.NLLLoss()
 
-    metric_log = MetricLogger()
+    metric_log = MetricLogger(args, cfg)
 
     # Train
     best_test_acc = 0
@@ -104,16 +104,27 @@ def run_training(args, cfg):
         metric_log.update(train_loss, test_loss, train_acc, test_acc)
 
         # update tqdm description
-        pbar.set_description(f'Epoch: {epoch:03d}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.2f}')
+        pbar.set_description(f'Epoch: {epoch+1:03d}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.2f}')
 
         # save model
         if test_acc > best_test_acc:
             best_test_acc = test_acc
             torch.save(model.state_dict(), OUTPUT_PATH+'best_model.py')
+        
+        metric_log.plot_epoch(OUTPUT_PATH)
+        metric_log.save(OUTPUT_PATH)
     
-    # save metrics
+    # Get per object accuracy for best model
+    model.load_state_dict(torch.load(OUTPUT_PATH+'best_model.py'))
+    for id, obj in cfg['object_ds_data']['obj_grasp_id_map'].items():
+        for mode in ['train', 'test']:
+            one_obj_ds = GraspingDataset(args, cfg, obj_id=id, split=mode)
+            one_obj_dl = DataLoader(one_obj_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
+            _, test_acc = test(args, cfg, model, one_obj_dl, loss, device)
+            metric_log.update_per_object(test_acc, id, mode)
+    
+    metric_log.per_object_acc_table(OUTPUT_PATH)
     metric_log.save(OUTPUT_PATH)
-    metric_log.plot(OUTPUT_PATH)
 
     return metric_log
 

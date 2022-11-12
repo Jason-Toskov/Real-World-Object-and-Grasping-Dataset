@@ -39,7 +39,7 @@ def parse_args():
     parser.add_argument('--gamma', type=float, default=0.7, help='Gamma for LR scheduler')
 
     # Training
-    parser.add_argument('--num_epochs', type=int, default=20, help='Number of epochs to train for')
+    parser.add_argument('--num_epochs', type=int, default=200, help='Number of epochs to train for')
 
 
     return parser.parse_args()

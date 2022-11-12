@@ -36,7 +36,7 @@ def get_norm_vals(point_set):
 
 
 class GraspingDataset(data.Dataset):
-    def __init__(self, args, cfg, split='train'):
+    def __init__(self, args, cfg, split='train', obj_id=None):
         
         self.cfg = cfg
         self.npoints = args.num_points
@@ -53,35 +53,56 @@ class GraspingDataset(data.Dataset):
         self.cross_val_k = args.cross_val_k
         self.separate_stable_unstable = args.separate_stable_unstable
 
-        print('view_from_grasp:',self.view_from_grasp)
+        self.object = obj_id
 
+        
+        matched_object_idx = []
         for path in os.listdir(self.root+self.json_dir): 
             for fname in os.listdir(self.root+self.json_dir+path):
                 self.datapoints.append(path+'/'+fname)
+                # This is bad but cbf fixing
+                if self.object is not None:
+                    if path == self.object:
+                        matched_object_idx.append(1)
+                    else:
+                        matched_object_idx.append(0)
         print('-->',len(self.datapoints),'data points loaded')
 
-        self.datapoints.sort()
-        random.Random(self.seed).shuffle(self.datapoints)
+        if self.object is not None:
+            np.random.seed(self.seed)
+            p = np.random.permutation(len(self.datapoints))
+            self.datapoints, matched_object_idx = np.array(self.datapoints)[p], np.array(matched_object_idx)[p]
+        else:
+            np.random.seed(self.seed)
+            p = np.random.permutation(len(self.datapoints))
+            self.datapoints = np.array(self.datapoints)[p]
 
+        dp_mask = np.zeros(len(self.datapoints),dtype=bool)
         if self.cross_val_num == 0: # no cross val
             print("Randomly splitting data")
             split_idx = math.floor(len(self.datapoints)*self.train_frac)
             if self.split == 'train':
-                self.datapoints = self.datapoints[:split_idx]
+                dp_mask[:split_idx] = True
             elif self.split == 'test': 
-                self.datapoints = self.datapoints[split_idx:]
+                dp_mask[split_idx:] = True
             else:
                 raise ValueError("split must be 'train' or 'test'")
         else: # cross val
             print("Cross val split number",self.cross_val_num)
             cross_val_size = math.floor(len(self.datapoints)/self.cross_val_k)
-            eval_indices = list(range((self.cross_val_num-1)*cross_val_size,self.cross_val_num*cross_val_size))
+            eval_indices = np.array(list(range((self.cross_val_num-1)*cross_val_size,self.cross_val_num*cross_val_size)))
             if self.split == 'train':
-                self.datapoints = [self.datapoints[i] for i in range(len(self.datapoints)) if i not in eval_indices]
+                dp_mask[eval_indices] = True
+                dp_mask = ~dp_mask
             elif self.split == 'test':
-                self.datapoints = [self.datapoints[i] for i in range(len(self.datapoints)) if i in eval_indices]
+                dp_mask[eval_indices] = True
             else:
                 raise ValueError("split must be 'train' or 'test'")
+        
+        self.datapoints = self.datapoints[dp_mask]
+        if self.object is not None:
+            matched_object_idx = np.array(matched_object_idx[dp_mask],dtype=bool)
+            self.datapoints = self.datapoints[matched_object_idx]
 
         print('--> Dataset size:',len(self.datapoints))
 

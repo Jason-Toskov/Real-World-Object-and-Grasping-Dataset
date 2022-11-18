@@ -4,6 +4,7 @@ import os
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+import numpy as np
 
 from arg_parsing import parse_args
 from GraspLoader import GraspingDataset
@@ -20,7 +21,7 @@ def fwd_pass(args, cfg, model, pcl, pose, target, device):
 def train(args, cfg, model, loader, loss, optimizer, device):
     model.train()
     total_loss = 0
-    for batch_idx, (pcl, pose, target) in enumerate(loader):
+    for batch_idx, (pcl, pose, target, obj_id) in enumerate(loader):
         pcl, pose, target = pcl.to(device), pose.to(device), target.to(device)
         output = fwd_pass(args, cfg, model, pcl, pose, target, device)
         l = loss(output, target)
@@ -35,15 +36,22 @@ def test(args, cfg, model, loader, loss, device):
     model.eval()
     total_loss = 0
     correct = 0
+    per_obj_acc = np.zeros((cfg['grasp_ds_data']['num_objects'],3))
     with torch.no_grad():
-        for batch_idx, (pcl, pose, target) in enumerate(loader):
+        for batch_idx, (pcl, pose, target, obj_id) in enumerate(loader):
             pcl, pose, target = pcl.to(device), pose.to(device), target.to(device)
             output = fwd_pass(args, cfg, model, pcl, pose, target, device)
             l = loss(output, target)
             total_loss += l.item()
-            pred = output.argmax(dim=1, keepdim=True)
+            pred = output.argmax(dim=1, keepdim=True).squeeze()
+            obj_id  = obj_id.squeeze()
+            for cls in np.unique(obj_id.cpu()):
+                classacc = pred[obj_id==cls].eq(target[obj_id==cls]).cpu().sum()
+                per_obj_acc[cls-1,0]+= classacc.item()/float(pcl[obj_id==cls].size()[0])
+                per_obj_acc[cls-1,1]+=1
             correct += pred.eq(target.view_as(pred)).sum().item()
-    return total_loss/(batch_idx+1), 100*correct/len(loader.dataset)
+        per_obj_acc[:,2] =  per_obj_acc[:,0]/ per_obj_acc[:,1]
+    return total_loss/(batch_idx+1), 100*correct/len(loader.dataset), 100*per_obj_acc[:,2]
 
 def run_training(args, cfg):    
     OUTPUT_PATH = cfg['dirs']['file_dir']+args.output_path
@@ -97,31 +105,26 @@ def run_training(args, cfg):
     pbar = tqdm(range(args.num_epochs))
     for epoch in pbar:
         train_loss = train(args, cfg, model, dl_train, loss, optimizer, device)
-        _, train_acc = test(args, cfg, model, dl_train, loss, device)
-        test_loss, test_acc = test(args, cfg, model, dl_test, loss, device)
+        _, train_acc, train_obj_acc = test(args, cfg, model, dl_train, loss, device)
+        test_loss, test_acc, test_obj_acc = test(args, cfg, model, dl_test, loss, device)
         scheduler.step()
 
         metric_log.update(train_loss, test_loss, train_acc, test_acc)
+        metric_log.update_per_object(train_obj_acc, 'Train')
+        metric_log.update_per_object(test_obj_acc, 'Test')
 
         # update tqdm description
-        pbar.set_description(f'Epoch: {epoch+1:03d}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.2f}')
+        # pbar.set_description(f'Epoch: {epoch+1:03d}, Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.2f}')
+        pbar.set_description(f'Epoch: {epoch+1:03d}, Test Inst Acc: {test_acc:.2f}, Test Obj Acc: {np.mean(test_obj_acc):.2f}')
 
         # save model
         if test_acc > best_test_acc:
             best_test_acc = test_acc
+            metric_log.best_epoch = epoch
             torch.save(model.state_dict(), OUTPUT_PATH+'best_model.py')
         
         metric_log.plot_epoch(OUTPUT_PATH)
         metric_log.save(OUTPUT_PATH)
-    
-    # Get per object accuracy for best model
-    model.load_state_dict(torch.load(OUTPUT_PATH+'best_model.py'))
-    for id, obj in cfg['object_ds_data']['obj_grasp_id_map'].items():
-        for mode in ['train', 'test']:
-            one_obj_ds = GraspingDataset(args, cfg, obj_id=id, split=mode)
-            one_obj_dl = DataLoader(one_obj_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
-            _, test_acc = test(args, cfg, model, one_obj_dl, loss, device)
-            metric_log.update_per_object(test_acc, id, mode)
     
     metric_log.per_object_acc_table(OUTPUT_PATH)
     metric_log.save(OUTPUT_PATH)

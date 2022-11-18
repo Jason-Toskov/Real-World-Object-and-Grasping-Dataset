@@ -51,7 +51,7 @@ class GraspingDataset(data.Dataset):
         self.use_normals = args.use_normals
         self.cross_val_num = args.cross_val_num
         self.cross_val_k = args.cross_val_k
-        self.separate_stable_unstable = args.separate_stable_unstable
+        self.unstable_is_success = args.unstable_is_success
 
         self.object = obj_id
 
@@ -106,7 +106,7 @@ class GraspingDataset(data.Dataset):
 
         print('--> Dataset size:',len(self.datapoints))
 
-        self.classes = [0,1,2] if self.separate_stable_unstable else [0,1]
+        self.classes = [0,1]
         print("Number of classes:",len(self.classes))
 
     def __len__(self):
@@ -118,8 +118,8 @@ class GraspingDataset(data.Dataset):
 
         if json_dict['stable_success']:
             label = 1
-        elif json_dict['success'] and not json_dict['stable_success'] and self.separate_stable_unstable:
-            label = 2
+        elif json_dict['success'] and not json_dict['stable_success'] and self.unstable_is_success:
+            label = 1
         else:
             label = 0
 
@@ -162,4 +162,4 @@ class GraspingDataset(data.Dataset):
         poses = torch.from_numpy(np.concatenate((grasp_pos,grasp_ori)).astype(np.float32))
         cls = torch.from_numpy(np.array([label]).astype(np.int64))
         
-        return point_set, poses, cls.squeeze()
+        return point_set, poses, cls.squeeze(), torch.LongTensor([json_dict['object_id']])

@@ -21,7 +21,7 @@ def parse_args():
     parser.add_argument('--use_normals', type=bool, default=True, help='Use normals')
     parser.add_argument('--cross_val_num', type=int, default=0, help='Cross validation number')
     parser.add_argument('--cross_val_k', type=int, default=5, help='Total number of cross validations')
-    parser.add_argument('--separate_stable_unstable', type=bool, default=False, help='Separate stable and unstable grasps')
+    parser.add_argument('--unstable_is_success', type=bool, default=False, help='Separate stable and unstable grasps')
 
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
     parser.add_argument('--num_workers', type=int, default=4, help='Number of workers for data loader')

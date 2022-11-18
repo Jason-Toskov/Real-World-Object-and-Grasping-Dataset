@@ -8,6 +8,7 @@ class MetricLogger:
         self.args = args
         self.config = config
         self.object_map = config['object_ds_data']['obj_grasp_id_map']
+        self.best_epoch = -1
 
         self.metrics = {}
         self.metrics['train_loss'] = []
@@ -15,7 +16,7 @@ class MetricLogger:
         self.metrics['train_acc'] = []
         self.metrics['test_acc'] = []
         # per object final accuracy
-        self.metrics['acc_per_obj'] = {mode:{id:0 for id, obj in self.object_map.items()} for mode in ['train', 'test']}
+        self.metrics['acc_per_obj'] = {mode:{id:[] for id, obj in self.object_map.items()} for mode in ['train', 'test']}
 
     def update(self, train_loss, test_loss, train_acc, test_acc):
         self.metrics['train_loss'].append(train_loss)
@@ -23,12 +24,14 @@ class MetricLogger:
         self.metrics['train_acc'].append(train_acc)
         self.metrics['test_acc'].append(test_acc)
     
-    def update_per_object(self, acc, id, mode):
-        self.metrics['acc_per_obj'][mode][id] = acc
+    def update_per_object(self, per_obj_acc, mode):
+        for i, acc in enumerate(per_obj_acc):
+            self.metrics['acc_per_obj'][mode.lower()][str(i+1)].append(acc)
 
     def save(self, out_path):
         with open(out_path+'metrics.json', 'w') as f:
-            json.dump(self.metrics, f)
+            json.dump({'epoch':self.best_epoch, 
+                       'metrics':self.metrics}, f)
     
     def plot_epoch(self, out_path):
         # plot accuracy and loss separately
@@ -63,7 +66,7 @@ class MetricLogger:
                     if row == 'Object':
                         str_to_write += '%s\t' % obj
                     else:
-                        str_to_write += '%.2f\t' % self.metrics['acc_per_obj'][row.lower()][id]
+                        str_to_write += '%.2f\t' % self.metrics['acc_per_obj'][row.lower()][id][self.best_epoch]
                 # replace last tab with newline
                 str_to_write += '\n'
                 f.write(str_to_write)

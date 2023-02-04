@@ -6,11 +6,11 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import numpy as np
 
-from arg_parsing import parse_args
-from GraspLoader import GraspingDataset
-from models.model import PointNetGraspCls
-from models.pointnet2_cls_ssg_grasp_pose import PointNet2Model
-from logging_utils import MetricLogger
+from src.model_training.arg_parsing import parse_args
+from src.model_training.GraspLoader import GraspingDataset
+from src.model_training.models.pointnet2_cls_ssg_grasp_pose import PointNet2Model
+from src.model_training.logging_utils import MetricLogger
+from src.scripts.display_grasp_pose import init_gripper_vis, pose_to_trans_matrix
 
 def fwd_pass(args, cfg, model, pcl, pose, target, device):
     if args.model == 'pointnet2':
@@ -21,7 +21,8 @@ def fwd_pass(args, cfg, model, pcl, pose, target, device):
 def train(args, cfg, model, loader, loss, optimizer, device):
     model.train()
     total_loss = 0
-    for batch_idx, (pcl, pose, target, obj_id) in enumerate(loader):
+    for batch_idx, (pcl, pose, target, json_dict) in enumerate(loader):
+        # breakpoint()
         pcl, pose, target = pcl.to(device), pose.to(device), target.to(device)
         output = fwd_pass(args, cfg, model, pcl, pose, target, device)
         l = loss(output, target)
@@ -38,13 +39,14 @@ def test(args, cfg, model, loader, loss, device):
     correct = 0
     per_obj_acc = np.zeros((cfg['grasp_ds_data']['num_objects'],3))
     with torch.no_grad():
-        for batch_idx, (pcl, pose, target, obj_id) in enumerate(loader):
+        for batch_idx, (pcl, pose, target, json_dict) in enumerate(loader):
+            obj_id = torch.LongTensor([json_dict[i]['object_id'] for i in range(len(json_dict))])
             pcl, pose, target = pcl.to(device), pose.to(device), target.to(device)
             output = fwd_pass(args, cfg, model, pcl, pose, target, device)
             l = loss(output, target)
             total_loss += l.item()
             pred = output.argmax(dim=1, keepdim=True).squeeze()
-            obj_id  = obj_id.squeeze()
+            # obj_id  = obj_id.squeeze()
             for cls in np.unique(obj_id.cpu()):
                 classacc = pred[obj_id==cls].eq(target[obj_id==cls]).cpu().sum()
                 per_obj_acc[cls-1,0]+= classacc.item()/float(pcl[obj_id==cls].size()[0])
@@ -75,17 +77,30 @@ def run_training(args, cfg):
     device = torch.device('cuda' if torch.cuda.is_available() and args.gpu else 'cpu')
     print('Using device:', device)
 
-    # Init dataset
-    ds_train = GraspingDataset(args, cfg, split='train')
-    dl_train = DataLoader(ds_train, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
+    # Init gripper model cloud:
+    if args.use_gripper_pcl:
+        gripper_model = init_gripper_vis(cfg)
+        gripper_pcl = gripper_model.sample_points_poisson_disk(args.num_points)
+    else:
+        gripper_pcl = None
+        print("NO GRIPPER")
 
-    ds_test = GraspingDataset(args, cfg, split='test')
-    dl_test = DataLoader(ds_test, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
+    # Init dataset
+    ds_train = GraspingDataset(args, cfg, split='train', gripper_pcl=gripper_pcl)
+    dl_train = DataLoader(ds_train, batch_size=args.batch_size, shuffle=True, 
+                            num_workers=args.num_workers, collate_fn=ds_train.collate_fn)
+
+    ds_test = GraspingDataset(args, cfg, split='test', gripper_pcl=gripper_pcl)
+    dl_test = DataLoader(ds_test, batch_size=args.batch_size, shuffle=True, 
+                            num_workers=args.num_workers, collate_fn=ds_test.collate_fn)
 
     # Init model
     # TODO: implement feature transform
     # TODO: implement other models
-    model = PointNet2Model(len(ds_train.classes), args.use_normals, args.view_from_grasp).to(device)
+    model = PointNet2Model(len(ds_train.classes), args.use_normals, 
+                            args.use_gripper_pcl, args.concat_grasp_pose, ).to(device)
+
+    print(args.use_normals)
 
     # Init optimizer + loss
     optimizer = torch.optim.Adam(
@@ -121,7 +136,7 @@ def run_training(args, cfg):
         if test_acc > best_test_acc:
             best_test_acc = test_acc
             metric_log.best_epoch = epoch
-            torch.save(model.state_dict(), OUTPUT_PATH+'best_model.py')
+            torch.save(model.state_dict(), OUTPUT_PATH+'best_model.pt')
         
         metric_log.plot_epoch(OUTPUT_PATH)
         metric_log.save(OUTPUT_PATH)

@@ -4,20 +4,22 @@ def parse_args():
     parser = argparse.ArgumentParser('')
     
     # Train type
-    parser.add_argument('--train_type', type=str, default='cross_val', help='train type')
+    parser.add_argument('--train_type', type=str, default='test_success_vs_stable_success', help='train type')
     
     # General
     parser.add_argument('--config', type=str, default='config.json', help='Path to config file')
     parser.add_argument('--gpu', type=bool, default=True, help='Use GPU')
-    parser.add_argument('--output_path', type=str, default='model_training/output/', help='Path to output folder')
+    parser.add_argument('--output_path', type=str, default='src/model_training/output/', help='Path to output folder')
 
     # Dataset
     parser.add_argument('--dataset', type=str, default='grasp_ds', help='Dataset to use')
-    parser.add_argument('--num_points', type=int, default=2500, help='Number of points to sample')
-    parser.add_argument('--seed', type=int, default=0, help='Random seed')
+    parser.add_argument('--num_points', type=int, default=1024, help='Number of points to sample')
+    parser.add_argument('--seed', type=int, default=10, help='Random seed')
     parser.add_argument('--train_frac', type=float, default=0.8, help='Fraction of data to use for training')
-    parser.add_argument('--data_augmentation', type=bool, default=False, help='Use data augmentation')
-    parser.add_argument('--view_from_grasp', type=bool, default=True, help='Use view from grasp')
+    parser.add_argument('--uniform_sample', type=bool, default=False, help='Use uniform sampling')
+    parser.add_argument('--concat_grasp_pose', type=bool, default=True, help='Use view from grasp')
+    parser.add_argument('--view_from_grasp', type=bool, default=False, help='Use view from grasp')
+    parser.add_argument('--use_gripper_pcl', type=bool, default=False, help='nvidia graspnet approach')
     parser.add_argument('--use_normals', type=bool, default=True, help='Use normals')
     parser.add_argument('--cross_val_num', type=int, default=0, help='Cross validation number')
     parser.add_argument('--cross_val_k', type=int, default=5, help='Total number of cross validations')

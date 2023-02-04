@@ -5,7 +5,7 @@ import open3d as o3d
 import os
 from tqdm import tqdm
 
-from data_loading_tools import make_grasp_data_generator
+from src.scripts.data_loading_tools import make_grasp_data_generator
 
 def process_grasp_ds(cfg):
     """

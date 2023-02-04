@@ -6,7 +6,7 @@ import argparse
 import shutil
 from tqdm import tqdm
 
-from process_clouds import process_grasp_ds
+from src.scripts.process_clouds import process_grasp_ds
 
 # https://stackoverflow.com/a/53877507/20436693
 class DownloadProgressBar(tqdm):

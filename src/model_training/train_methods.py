@@ -1,7 +1,7 @@
 import json
 
-from trainer import run_training
-from arg_parsing import parse_args
+from src.model_training.trainer import run_training
+from src.model_training.arg_parsing import parse_args
 
 def run_cross_val(args, cfg, base_output_path):
     for i in range(1, args.cross_val_k+1):
@@ -28,6 +28,15 @@ def test_success_vs_stable_success(args, cfg, base_output_path):
     args.output_path = base_output_path + 'include_unstable/'
     run_cross_val(args, cfg, args.output_path)
 
+def test_uniform_sample(args, cfg, base_output_path):
+    args.uniform_sample = False
+    args.output_path = base_output_path + 'nonuniform_sample/'
+    metric_log = run_training(args, cfg)
+
+    args.uniform_sample = True
+    args.output_path = base_output_path + 'uniform_sample/'
+    metric_log = run_training(args, cfg)
+
 if __name__ == '__main__':
     args = parse_args()
     # load config
@@ -42,5 +51,7 @@ if __name__ == '__main__':
         compare_pose_in_and_transform(args, cfg, args.output_path)
     elif args.train_type == 'test_success_vs_stable_success':
         test_success_vs_stable_success(args, cfg, args.output_path)
+    elif args.train_type == 'test_uniform_sample':
+        test_uniform_sample(args, cfg, args.output_path)
     else:
         raise ValueError("train_type must be 'cross_val', 'compare_pose_in_and_transform', or 'test_success_vs_stable_success'")

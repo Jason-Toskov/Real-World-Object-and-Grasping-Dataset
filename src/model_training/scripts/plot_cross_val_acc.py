@@ -30,6 +30,7 @@ if __name__ == '__main__':
                 obj_accs.append([float(x) for x in obj_accs_txt[2].split('\t')[1:-1]])
 
             tmp_acc_obj_dict[stability][type] = np.mean(np.array(obj_accs),axis=0)
+            tmp_acc_obj_dict[stability][type+'std']=np.std(np.array(obj_accs),axis=0)
             tmp_acc_dict[stability][type] = np.array(accs)
             # breakpoint()
     
@@ -62,4 +63,12 @@ if __name__ == '__main__':
         print(stability)
         print("Fish_Flakes	Sunscreen_Roll_On	Bathroom_Cleaner	Bubbles	Burger_Sauce	Nail_Polish_Remover	Diced_Tomatoes_Can	Hazelnut_Spread	Intimate_Wash	Dishwashing_Liquid	Glow_Sticks	Dishwasher_Powder	Chest_Rub_Ointment	Gel_Nail_Polish_Remover	Toilet_Cleaner	Soap_Box	BBQ_Sauce	Water_Crackers	Salt	Sunscreen_Tube	")
         for type in tmp_acc_dict[stability].keys():
-            print(type, np.round(tmp_acc_obj_dict[stability][type], 2))
+            print(type, np.round(np.mean(tmp_acc_obj_dict[stability][type]),2), np.round(tmp_acc_obj_dict[stability][type], 2))
+            
+    print("\n\n\n Standard devs:\n")
+    for stability in tmp_acc_dict.keys():
+        print(stability)
+        print("Fish_Flakes	Sunscreen_Roll_On	Bathroom_Cleaner	Bubbles	Burger_Sauce	Nail_Polish_Remover	Diced_Tomatoes_Can	Hazelnut_Spread	Intimate_Wash	Dishwashing_Liquid	Glow_Sticks	Dishwasher_Powder	Chest_Rub_Ointment	Gel_Nail_Polish_Remover	Toilet_Cleaner	Soap_Box	BBQ_Sauce	Water_Crackers	Salt	Sunscreen_Tube	")
+        for type in tmp_acc_dict[stability].keys():
+            if "Gripper" in type:
+                print(type, np.round(np.mean(tmp_acc_obj_dict[stability][type]),2), np.round(tmp_acc_obj_dict[stability][type+'std'], 2))

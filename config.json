@@ -1,6 +1,6 @@
 {
     "dirs":{
-        "file_dir": "./",
+        "file_dir": "/home/jason/Real-World-Object-and-Grasping-Dataset/",
         "grasp_data_dir": "grasp_ds/",
         "object_data_dir": "object_ds/"
     },

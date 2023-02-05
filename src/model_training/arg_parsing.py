@@ -9,7 +9,7 @@ def parse_args():
     # General
     parser.add_argument('--config', type=str, default='config.json', help='Path to config file')
     parser.add_argument('--gpu', type=bool, default=True, help='Use GPU')
-    parser.add_argument('--output_path', type=str, default='src/model_training/output/', help='Path to output folder')
+    parser.add_argument('--output_path', type=str, default='/home/jason/Real-World-Object-and-Grasping-Dataset/src/model_training/output/', help='Path to output folder')
 
     # Dataset
     parser.add_argument('--dataset', type=str, default='grasp_ds', help='Dataset to use')
